@@ -7,6 +7,7 @@
 
 #define HOVER_TIMEOUT 1
 
+
 LRESULT CALLBACK GDIWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	GDIAnalogClock* _this = (GDIAnalogClock*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -29,31 +30,27 @@ LRESULT CALLBACK GDIWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 				InsertMenu(hPopMenu, 0xFFFFFFFF, MF_BYPOSITION | MF_STRING, IDM_DISABLE_CLOCK, L"&Disable");
 
 			InsertMenu(hPopMenu, 0xFFFFFFFF, MF_BYPOSITION | MF_STRING, IDM_CLOSE_CLOCK, L"&Close");
-			TrackPopupMenu(hPopMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_BOTTOMALIGN, cursorPos.x, cursorPos.y, 0, hWnd, NULL);
+			SetForegroundWindow(hWnd);
+			int _trckCode = TrackPopupMenu(hPopMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_BOTTOMALIGN | TPM_RETURNCMD, cursorPos.x, cursorPos.y, 0, hWnd, NULL);
+			if (_trckCode == IDM_ENABLE_CLOCK)
+			{
+				_this->SetWindowState(TRUE);
+				ShowWindow(hWnd, SW_SHOWDEFAULT);
+			}
+			else if (_trckCode == IDM_DISABLE_CLOCK)
+			{
+				_this->SetWindowState(FALSE);
+				ShowWindow(hWnd, SW_HIDE);
+			}
+			else if (_trckCode == IDM_CLOSE_CLOCK)
+			{
+				SendMessage(hWnd, WM_CLOSE, wParam, lParam);
+			}
+
+			DestroyMenu(hPopMenu);
+		
 		}
 		break;
-
-	case WM_COMMAND:
-	{
-		switch (LOWORD(wParam))
-		{
-		case IDM_ENABLE_CLOCK:
-			_this->SetWindowState(TRUE);
-			ShowWindow(hWnd, SW_SHOWDEFAULT);
-			break;
-
-		case IDM_DISABLE_CLOCK:
-			_this->SetWindowState(FALSE);
-			ShowWindow(hWnd, SW_HIDE);
-			break;
-
-		case IDM_CLOSE_CLOCK:
-			SendMessage(hWnd, WM_CLOSE, wParam, lParam);
-			break;
-		default:
-			break;
-		}
-	}
 
 	case WM_TIMER:
 		switch (wParam)
