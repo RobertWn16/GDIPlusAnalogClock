@@ -6,7 +6,9 @@
 #pragma comment(lib, "Shcore.lib")
 
 #define HOVER_TIMEOUT 1
-
+#define MAX_WIDTH_4K 3840
+#define MAX_HEIGTH_4K 2160
+const float MAX_ZOOM_4K = 0.3f;
 
 LRESULT CALLBACK GDIWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -137,7 +139,11 @@ void _stdcall GDIAnalogClock::SetWindowPosition()
 	hMonitor = MonitorFromWindow(this->corehWnd, MONITOR_DEFAULTTOPRIMARY);
 	GetMonitorInfo(hMonitor, &monitorInfo);
 
+	int hWndWidth = monitorInfo.rcMonitor.right - currentWidth * zoomLevel;
+
+	this->zoomLevel = MAX_ZOOM_4K * (MAX_WIDTH_4K / hWndWidth);
 	SetWindowPos(this->corehWnd, NULL, monitorInfo.rcMonitor.right - currentWidth * zoomLevel, 0,  currentWidth, currentHeigth, SWP_SHOWWINDOW);
+
 }
 
 HRESULT _stdcall GDIAnalogClock::Init_Load(LPCWSTR clockPanelPath, LPCWSTR hourHandPath, LPCWSTR minuteHandPath, LPCWSTR secondHandPath, HINSTANCE hInstance, WNDPROC WndProc)
